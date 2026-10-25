@@ -1,0 +1,14 @@
+# Local development (npm run dev). Copy to .dev.vars - it is gitignored.
+# Lets requests to localhost in as this person; ignored on any other host.
+DEV_AUTH_EMAIL=you@example.com
+# Optional: Wise sync against the real API from your machine.
+# WISE_API_KEYS=
+# Optional: Plaid, for npm run plaid:link (and sync from the dev server).
+# PLAID_CLIENT_ID=
+# PLAID_SECRET=
+# PLAID_ENV=sandbox
+# PLAID_COUNTRY_CODES=US
+# PLAID_ACCESS_TOKENS=
+# For `npm run ingest` against production: the Access service token.
+# ACCESS_CLIENT_ID=
+# ACCESS_CLIENT_SECRET=

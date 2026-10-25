@@ -1,0 +1,77 @@
+/* App-wide tokens, reset and shell rules. Import first from main.ts.
+   Seams: the token VALUES in :root (and .dark, if the app has dark mode) -
+   everything in shared/ui references only these names, so re-skinning an
+   app is redefining the accent triple and the neutrals. See
+   reference/visual.md for the palettes the family uses. */
+
+:root {
+  /* identity: petrol ledger green */
+  --accent: #116066;
+  --accent-deep: #0c4a4f;
+  --accent-light: #4e969b;
+  --accent-soft: #e2eeee;      /* tinted surface for selected/current rows */
+
+  /* neutrals: cool paper */
+  --bg-surface: #f4f7f6;       /* page */
+  --bg-raised: #ffffff;        /* cards, inputs */
+  --bg-hover: #e9efee;         /* hover, selected, disabled fill */
+  --text-primary: #182726;
+  --text-secondary: #5c6f6d;
+  --border: #dce4e2;
+
+  /* semantic */
+  --ok: #177245;               /* money in */
+  --warn: #a16207;             /* attested mismatch, under investigation */
+  --danger: #c03828;           /* discrepancy, money trouble */
+  --danger-deep: #9c2c1f;
+
+  --radius: 10px;
+  --shadow: 0 4px 16px rgba(0, 0, 0, 0.18);
+
+  --font-body: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+/* The shell never scrolls; each view has exactly one inner scroller. This is
+   also what makes the mobile keyboard resize the layout instead of pushing
+   it, together with the viewport meta in index.html. */
+html, body, #app { height: 100dvh; }
+html { background: var(--bg-surface); }
+body {
+  font-family: var(--font-body);
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+  overflow: hidden;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: none;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+a { color: var(--accent); }
+h1, h2, h3 { font-weight: 500; line-height: 1.25; }
+img { max-width: 100%; }
+
+/* Desktop: a touch more type, and the drawer becomes a permanent sidebar
+   (see ui/Drawer.svelte and the .shell margin in App.svelte). */
+@media (min-width: 768px) {
+  html { font-size: 18px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

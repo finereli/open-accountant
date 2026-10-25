@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "strict": true,
+    "noEmit": true,
+    "skipLibCheck": true,
+    "isolatedModules": true,
+    "verbatimModuleSyntax": true,
+    "types": ["@cloudflare/workers-types", "vite/client", "svelte", "node"],
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "paths": { "$shared/*": ["./shared/*"] }
+  },
+  "include": ["src/**/*", "shared/**/*", "functions/**/*", "cli/**/*", "scripts/**/*.ts", "tests/**/*", "vite.config.ts"]
+}

@@ -1,0 +1,4 @@
+# Build files carry a content hash in their name, so a given URL never
+# changes content - safe to cache forever.
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable

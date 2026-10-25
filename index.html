@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="UTF-8" />
+    <!-- viewport-fit=cover for the safe areas; no user scaling because this is
+         an app, not a page (a deliberate choice - see the PWA skill).
+         interactive-widget=resizes-content: Android Chrome otherwise lays the
+         soft keyboard OVER the layout viewport, hiding fixed bottom sheets
+         (the merchant panel) behind it; this makes the viewport - and every
+         dvh/fixed element - shrink above the keyboard instead. iOS ignores it. -->
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no, interactive-widget=resizes-content"
+    />
+    <title>Accountant</title>
+    <meta name="description" content="Ledgers you can trust" />
+
+    <meta name="theme-color" content="#0c4a4f" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Accountant" />
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+    <link rel="icon" href="/icons/icon-192.png" type="image/png" />
+    <!-- Startup watchdog, deliberately independent of the app bundle: if the
+         app hasn't rendered after a few seconds, show what went wrong instead
+         of a blank page (a script that failed to load, a crash on boot). -->
+    <script>
+      ;(function () {
+        var errs = []
+        addEventListener('error', function (e) {
+          var t = e.target
+          if (t && t !== window && (t.src || t.href)) errs.push('load failed: ' + (t.src || t.href))
+          else errs.push((e.message || 'error') + (e.filename ? ' @ ' + e.filename + ':' + e.lineno : ''))
+        }, true)
+        addEventListener('unhandledrejection', function (e) {
+          var r = e.reason
+          errs.push('unhandled: ' + (r && (r.stack || r.message) || r))
+        })
+        setTimeout(function () {
+          var app = document.getElementById('app')
+          if (app && app.children.length) return
+          var sw = navigator.serviceWorker && navigator.serviceWorker.controller ? 'controlled' : 'none'
+          // Every app file with how it arrived; one still downloading has no
+          // timing entry yet and shows as pending.
+          var done = {}
+          var files = performance.getEntriesByType('resource').filter(function (r) {
+            return /\/assets\/|\/sw\.js|\/workbox-/.test(r.name)
+          }).map(function (r) {
+            done[r.name] = 1
+            return r.name.replace(location.origin, '') + '  status=' + (r.responseStatus || '?') +
+              ' bytes=' + r.transferSize + '/' + r.decodedBodySize + ' ' + Math.round(r.duration) + 'ms'
+          })
+          document.querySelectorAll('script[src],link[rel=stylesheet]').forEach(function (el) {
+            var u = el.src || el.href
+            if (!done[u]) files.push(u.replace(location.origin, '') + '  PENDING (never finished)')
+          })
+          var d = document.createElement('pre')
+          d.style.cssText = 'white-space:pre-wrap;word-break:break-word;font:12px/1.5 monospace;padding:24px 16px;margin:0;color:#333'
+          d.textContent = 'Accountant did not start.\n\n' + (errs.join('\n') || 'no errors caught') +
+            '\n\nfiles:\n' + (files.join('\n') || 'none') +
+            '\n\nservice worker: ' + sw + '\nurl: ' + location.href + '\nua: ' + navigator.userAgent
+          document.body.appendChild(d)
+        }, 6000)
+      })()
+    </script>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script>window.addEventListener('beforeinstallprompt',function(e){e.preventDefault();window.__pwaInstallPrompt=e})</script>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

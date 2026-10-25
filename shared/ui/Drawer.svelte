@@ -1,0 +1,187 @@
+<script lang="ts">
+  import type { Snippet } from 'svelte'
+  // Slide-in navigation drawer that becomes a permanent sidebar on desktop
+  // (>= 768px, matched by the .shell margin in App.svelte). Slides from the
+  // start edge in either direction. Escape closes it; the host closes it on
+  // any navigation (router.onChange) so the back button works too.
+  //
+  // Props: open, onclose, entries [{ label, hash, current, count? }] for a
+  // flat list, or groups [{ title?, entries }] for titled sections (an admin
+  // with פרסום / תוכן / אנשים); `count` draws a small badge. brand snippet
+  // (logo + name), footer snippet (user row, sign-out, build line with
+  // ResetButton). Seams: closeLabel, width.
+  // App adaptation: `trailing` renders small end-aligned text (a balance)
+  // and `status` colors it - 'ok' adds a green check, 'warn' goes amber.
+  export interface DrawerEntry {
+    label: string
+    hash: string
+    current?: boolean
+    count?: number
+    trailing?: string
+    status?: 'ok' | 'warn'
+  }
+  export interface DrawerGroup { title?: string; entries: DrawerEntry[] }
+  let { open = false, onclose, entries = [], groups, brand, footer, closeLabel = 'Close menu' }: {
+    open?: boolean; onclose?: () => void; entries?: DrawerEntry[]; groups?: DrawerGroup[]
+    brand?: Snippet; footer?: Snippet; closeLabel?: string
+  } = $props()
+  const sections = $derived(groups ?? [{ entries }])
+
+  function go(hash: string) {
+    location.hash = hash
+    onclose?.()
+  }
+</script>
+
+<svelte:window onkeydown={(e) => open && e.key === 'Escape' && onclose?.()} />
+
+<button class="scrim" class:open aria-label={closeLabel} tabindex={open ? 0 : -1} onclick={() => onclose?.()}></button>
+
+<nav class="drawer" class:open aria-hidden={!open}>
+  {#if brand}
+    <div class="brand">{@render brand()}</div>
+  {/if}
+
+  <ul>
+    {#each sections as g, i}
+      {#if i > 0}<li class="separator"></li>{/if}
+      {#if g.title}<li class="section-label">{g.title}</li>{/if}
+      {#each g.entries as e}
+        <li>
+          <button class:current={e.current} onclick={() => go(e.hash)} tabindex={open ? 0 : -1}>
+            <span class="entry-label">{e.label}</span>
+            {#if e.count}<span class="count">{e.count}</span>{/if}
+            {#if e.trailing}
+              <span class="trailing" class:warn={e.status === 'warn'}>
+                {#if e.status === 'ok'}<svg class="tick" viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>{/if}
+                {e.trailing}
+              </span>
+            {/if}
+          </button>
+        </li>
+      {/each}
+    {/each}
+  </ul>
+
+  {#if footer}
+    <div class="footer">{@render footer()}</div>
+  {/if}
+</nav>
+
+<style>
+  .scrim {
+    position: fixed;
+    inset: 0;
+    z-index: 40;
+    display: block;
+    width: 100%;
+    background: rgba(0, 0, 0, 0.45);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease;
+  }
+  .scrim.open { opacity: 1; pointer-events: auto; }
+
+  .drawer {
+    position: fixed;
+    z-index: 41;
+    inset-block: 0;
+    inset-inline-start: 0;
+    width: min(78vw, 300px);
+    background: var(--bg-surface);
+    box-shadow: 0 0 40px rgba(0, 0, 0, 0.18);
+    display: flex;
+    flex-direction: column;
+    padding: calc(var(--safe-top) + 22px) 0 calc(var(--safe-bottom) + 22px);
+    /* Hidden off the start edge. transform isn't direction-aware, so branch
+       on the document direction. */
+    transform: translateX(-100%);
+    transition: transform 0.28s cubic-bezier(0.32, 0.72, 0, 1);
+  }
+  :global([dir='rtl']) .drawer { transform: translateX(100%); }
+  .drawer.open, :global([dir='rtl']) .drawer.open { transform: translateX(0); }
+
+  @media (min-width: 768px) {
+    .scrim { display: none; }
+    .drawer, :global([dir='rtl']) .drawer {
+      transform: translateX(0);
+      box-shadow: none;
+      border-inline-end: 1px solid var(--border);
+    }
+  }
+
+  .brand {
+    padding: 0 22px 20px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  /* The nav list is the scroll region: a drawer taller than the screen
+     scrolls here while brand and footer stay pinned. */
+  ul {
+    list-style: none;
+    padding: 14px 12px;
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .section-label {
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: var(--accent);
+    letter-spacing: 0.05em;
+    padding: 4px 14px 2px;
+  }
+  .separator {
+    height: 1px;
+    background: var(--border);
+    margin: 10px 14px;
+  }
+  ul button {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    width: 100%;
+    text-align: start;
+    padding: 13px 14px;
+    border-radius: 12px;
+    font-size: 0.95rem;
+    color: var(--text-secondary);
+    transition: background 0.15s;
+  }
+  ul button:hover { background: var(--bg-hover); }
+  ul button.current {
+    background: var(--bg-hover);
+    color: var(--accent-deep);
+    font-weight: 500;
+  }
+  .count {
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: var(--accent);
+    background: var(--accent-soft, var(--bg-hover));
+    padding: 1px 7px;
+    border-radius: 99px;
+    min-width: 22px;
+    text-align: center;
+  }
+  .entry-label { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .trailing {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    flex: none;
+    font-size: 0.76rem;
+    color: var(--text-secondary);
+    font-variant-numeric: tabular-nums;
+  }
+  .trailing.warn { color: var(--warn, #b45309); font-weight: 500; }
+  .tick { color: var(--ok, #177245); }
+
+  .footer {
+    margin-top: auto;
+    padding: 16px 22px;
+    border-top: 1px solid var(--border);
+  }
+</style>

@@ -1,0 +1,24 @@
+{
+  "api": "https://accountant.example.com",
+  "formats": [
+    {
+      "name": "everyday checking",
+      "file": "^checking.*\\.csv$",
+      "account": "checking",
+      "date": { "column": "Date", "format": "YYYY-MM-DD" },
+      "description": ["Description", "Details"],
+      "amount": "Amount",
+      "balance": "Balance"
+    },
+    {
+      "name": "credit card",
+      "file": "^card.*\\.csv$",
+      "account": "visa",
+      "date": { "column": "Transaction Date", "format": "MM/DD/YYYY" },
+      "description": "Description",
+      "debit": "Debit",
+      "credit": "Credit",
+      "only": { "column": "Status", "equals": "Posted" }
+    }
+  ]
+}

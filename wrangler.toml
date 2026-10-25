@@ -1,0 +1,36 @@
+name = "accountant"
+pages_build_output_dir = "dist"
+compatibility_date = "2026-08-01"
+compatibility_flags = ["nodejs_compat"]
+
+# Create with: npx wrangler d1 create accountant-db - then paste its id here.
+[[d1_databases]]
+binding = "DB"
+database_name = "accountant-db"
+database_id = "REPLACE_WITH_YOUR_D1_DATABASE_ID"
+
+# Workers AI: the auto-categorizer and screenshot import. No key needed.
+[ai]
+binding = "AI"
+
+[vars]
+# Who may sign in (through Cloudflare Access). Comma-separate for a household.
+OWNER_EMAIL = "you@example.com"
+# Your Cloudflare Access team domain and the Access application's AUD tag.
+ACCESS_TEAM_DOMAIN = "yourteam.cloudflareaccess.com"
+ACCESS_AUD = "REPLACE_WITH_ACCESS_APPLICATION_AUD"
+# The Access service token's client id (the CLI and the server's own
+# requests). Its secret is a Pages secret: ACCESS_CLIENT_SECRET.
+ACCESS_CLIENT_ID = ""
+# Totals default to this currency.
+HOME_CURRENCY = "USD"
+# Plaid (optional): "production" or "sandbox", and the countries your banks are in.
+PLAID_ENV = "production"
+PLAID_COUNTRY_CODES = "US"
+
+# Secrets (never here): npx wrangler pages secret put NAME --project-name accountant
+#   ACCESS_CLIENT_SECRET   the service token's secret
+#   WISE_API_KEYS          optional: Wise personal API tokens, comma-separated
+#   PLAID_CLIENT_ID        optional: Plaid credentials
+#   PLAID_SECRET
+#   PLAID_ACCESS_TOKENS    optional: one per linked bank, comma-separated (npm run plaid:link)

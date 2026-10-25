@@ -1,0 +1,11 @@
+@import '$shared/css/base.css';
+
+/* Every number in this app is a ledger figure: tabular, so columns never
+   jitter and amounts align by digit. */
+.num {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+}
+
+/* Money in gets color; money out stays ink - the ledger convention. */
+.pos { color: var(--ok); }

@@ -1,0 +1,39 @@
+{
+  "name": "open-accountant",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler pages dev dist --port 8788",
+    "build": "npm run check && vite build",
+    "check": "svelte-check --tsconfig ./tsconfig.json",
+    "preview": "vite preview",
+    "deploy": "npm run build && wrangler pages deploy dist --project-name accountant --branch main",
+    "ingest": "tsx cli/ingest.ts",
+    "icons": "node scripts/icons.mjs",
+    "db:local": "wrangler d1 execute accountant-db --local --file schema/schema.sql && wrangler d1 execute accountant-db --local --file schema/seed.sql",
+    "db:remote": "wrangler d1 execute accountant-db --remote --file schema/schema.sql && wrangler d1 execute accountant-db --remote --file schema/seed.sql",
+    "test": "vitest run",
+    "plaid:link": "tsx scripts/plaid-link.ts",
+    "sample": "wrangler d1 execute accountant-db --local --file sample-data/accounts.sql && wrangler d1 execute accountant-db --local --file sample-data/rules.sql && wrangler d1 execute accountant-db --local --file sample-data/plan.sql && tsx cli/ingest.ts sample-data --config sample-data/ingest.config.json --local",
+    "sample:generate": "tsx scripts/generate-sample-data.ts"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^5.20260820.1",
+    "@sveltejs/vite-plugin-svelte": "^6.2.1",
+    "@types/node": "^24.0.0",
+    "svelte": "^5.39.5",
+    "svelte-check": "^4.3.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.9.0",
+    "vite": "^7.1.7",
+    "vite-plugin-pwa": "^1.0.3",
+    "vitest": "^4.1.11",
+    "wrangler": "^4.31.0"
+  },
+  "dependencies": {
+    "cally": "0.9.2"
+  },
+  "description": "A starter kit for a personal finance app you own: trusted ledgers, multi-currency, AI categorization, a cash forecast and an MCP server, on Cloudflare.",
+  "license": "MIT"
+}

@@ -170,6 +170,8 @@ The Sync screen (or `POST /api/wise-sync`) then pulls every balance of every pro
 
 Wise doesn't let personal tokens read statements for some profiles (in the EU and UK it can require strong customer authentication). If the sync fails with a 403, use the per-balance statement CSV instead (Wise -> a balance -> Statements -> CSV). It has signed `Amount` and `Running Balance` columns and imports like any other CSV.
 
+Pick one source per Wise balance and stay with it. The sync doesn't know about accounts filled from CSV: it would create a second account for the same balance, and its rows are keyed by Wise's reference numbers, so they wouldn't dedup against the CSV's rows even if you pointed `external_ref` at the old account.
+
 ### Plaid (US, Canada, UK, parts of Europe)
 
 Plaid connects to most banks in the US and Canada, and many in the UK and Europe. It's the best option where it works, because new transactions arrive without anyone downloading anything. The owner needs their own Plaid developer account; walk them through it:

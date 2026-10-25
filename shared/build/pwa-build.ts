@@ -74,6 +74,10 @@ export function pwaOptions({
 }: PwaOptionsInput) {
   return {
     registerType: 'autoUpdate' as const,
+    // Send cookies with the manifest request: an auth proxy in front of the
+    // whole site (Cloudflare Access) otherwise answers it with a login page,
+    // and the phone installs a bare bookmark instead of the app.
+    useCredentials: true,
     injectRegister: null,
     includeAssets,
     manifest,

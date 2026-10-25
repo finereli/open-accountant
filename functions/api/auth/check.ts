@@ -6,7 +6,11 @@ import { json } from '../_lib'
 export const onRequestGet: PagesFunction = async ({ request }) => {
   const url = new URL(request.url)
   const next = url.searchParams.get('next')
-  // Same-site paths only, never //evil.example.
-  if (next && next.startsWith('/') && !next.startsWith('//')) return Response.redirect(new URL(next, url.origin).toString(), 302)
+  // This site only. Checked after resolving, because browsers read
+  // "/\evil.example" as "//evil.example".
+  if (next) {
+    const to = new URL(next, url.origin)
+    if (to.origin === url.origin) return Response.redirect(to.toString(), 302)
+  }
   return json({ ok: true })
 }

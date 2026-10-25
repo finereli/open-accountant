@@ -123,7 +123,7 @@ CREATE TABLE IF NOT EXISTS transactions (
   amount_cents INTEGER NOT NULL,          -- signed: positive = money in
   balance_after_cents INTEGER,            -- from the institution, when it gives one
   source_file TEXT NOT NULL,
-  semantic_hash TEXT NOT NULL,            -- dedup key (see cli/parsers)
+  semantic_hash TEXT NOT NULL,            -- dedup key (see cli/formats.ts)
   external_id TEXT,                       -- the source's own id (Wise); null for CSVs
   merchant_key TEXT,                      -- cleaned description; joins merchant_aliases
   merchant_override_id INTEGER REFERENCES merchants(id),

@@ -96,4 +96,4 @@ const server = createServer(async (req, res) => {
   }
 })
 
-server.listen(8790, () => console.log(`Open http://localhost:8790 to link a bank (${env}, ${countries.join(',')}).`))
+server.listen(8790, '127.0.0.1', () => console.log(`Open http://localhost:8790 to link a bank (${env}, ${countries.join(',')}).`))

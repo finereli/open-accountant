@@ -5,6 +5,7 @@
 
 import { describe, it, expect, beforeAll } from 'vitest'
 import { onRequest } from '../functions/api/_middleware'
+import { onRequestGet as check } from '../functions/api/auth/check'
 import { installAccessKeys, accessJwt, accessEnv, OWNER, CLIENT_ID, AUD } from './access-token'
 
 const PROD = 'https://accountant.example.com'
@@ -59,5 +60,40 @@ describe('who gets into /api', () => {
   it('refuses no credentials and junk', async () => {
     expect(await status({})).toBe(401)
     expect(await status({ 'Cf-Access-Jwt-Assertion': 'junk.junk.junk' })).toBe(401)
+  })
+})
+
+// Access's session is a cookie, which a browser also sends on requests other
+// sites make. Writes from another site are refused before auth is checked.
+describe('cross-site writes', () => {
+  const post = async (headers: Record<string, string>) => {
+    const res = await onRequest({
+      request: new Request(`${PROD}/api/ingest`, { method: 'POST', headers: { Cookie: `CF_Authorization=${await accessJwt({ email: OWNER })}`, ...headers } }),
+      env: accessEnv,
+      next: async () => new Response('ok'),
+    } as any)
+    return res.status
+  }
+  it('lets the app itself and the CLI write', async () => {
+    expect(await post({ 'Sec-Fetch-Site': 'same-origin', Origin: PROD })).toBe(200)
+    expect(await post({})).toBe(200)
+  })
+  it('refuses writes another site starts', async () => {
+    expect(await post({ 'Sec-Fetch-Site': 'cross-site', Origin: 'https://evil.example' })).toBe(403)
+    expect(await post({ 'Sec-Fetch-Site': 'same-site' })).toBe(403)
+    expect(await post({ Origin: 'https://evil.example' })).toBe(403)
+  })
+})
+
+describe('/api/auth/check?next', () => {
+  const go = async (next: string) => {
+    const res = await check({ request: new Request(`${PROD}/api/auth/check?next=${encodeURIComponent(next)}`) } as any)
+    return res.headers.get('Location')
+  }
+  it('returns to a path on this site', async () => {
+    expect(await go('/spending?m=2026-09')).toBe(`${PROD}/spending?m=2026-09`)
+  })
+  it('never sends the browser to another site', async () => {
+    for (const bad of ['//evil.example', '/\\evil.example', 'https://evil.example/', '\\\\evil.example']) expect(await go(bad)).toBeNull()
   })
 })
